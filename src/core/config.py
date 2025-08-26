@@ -17,15 +17,16 @@ class ConfigApp(BaseModel):
 class DBConfig(BaseModel):
     host: str = "localhost"
     port: int = "5432"
-    password: str
     username: str = "postgres"
+    password: str
+    name: str
 
     @property
     def get_db_url(self):
         url = ("postgresql+asyncpg://"
                f"{self.username}:{self.password}"
                f"@{self.host}:{self.port}"
-               f"/{self.table_name}"
+               f"/{self.name}"
             )
         return url
 
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     
-    app = ConfigApp()
+    app: ConfigApp = ConfigApp()
     db: DBConfig
 
 

@@ -1,4 +1,5 @@
 from enum import Enum
+from uuid import UUID
 import re
 
 from pydantic import (
@@ -27,3 +28,11 @@ class UserSchema(BaseModel):
         verif_expression = re.compile(r'^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$')
         if not verif_expression.match(data.password):
             raise ValidationError("The password was not verified")
+        return data
+        
+
+class UserResponce(BaseModel):
+    id: UUID
+    name: str
+    last_name: str
+    email: EmailStr
