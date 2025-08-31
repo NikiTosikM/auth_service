@@ -6,11 +6,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent 
+BASE_DIR = Path(__file__).resolve().resolve().parent
 
 
 class ConfigApp(BaseModel):
     host: str = "localhost"
-    port: int = "8000"
+    port: int = 8000
     reload: bool = True
 
 
@@ -29,6 +30,20 @@ class DBConfig(BaseModel):
                f"/{self.name}"
             )
         return url
+    
+class RedisConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 6379
+    max_connection_pool: int = 10
+    db_number: int = 0
+    
+
+class AuthSetting(BaseModel):
+    private_key: Path = BASE_DIR / "keys" /  "private.xml"
+    public_key: Path = BASE_DIR / "keys" / "public.xml"
+    algorithm: str = "RS256"
+    access_token_lifetime_minutes: int = 15
+    refresh_token_lifetime_minutes: int = 10800
 
 
 class Settings(BaseSettings):
@@ -37,8 +52,9 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     
-    app: ConfigApp = ConfigApp()
+    app: ConfigApp
     db: DBConfig
-
+    auth: AuthSetting = AuthSetting()
+    redis: RedisConfig
 
 settings = Settings()

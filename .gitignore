@@ -10,3 +10,8 @@ wheels/
 .venv
 
 .vscode
+
+.env
+
+src/keys/*
+

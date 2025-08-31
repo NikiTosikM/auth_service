@@ -1,7 +1,10 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
-from auth.exception.exception import UserAlreadeRegistered
+from auth.exception.exception import (
+    UserAlreadeRegistered,
+    TokenValidException
+)
 
 
 def user_error_handlers(app: FastAPI):
@@ -20,3 +23,16 @@ def user_error_handlers(app: FastAPI):
                 }
             },
         )
+        
+def token_handler(app: FastAPI):
+    """ Обработчик, работающий с ошибками токена """
+    @app.exception_handler(TokenValidException)
+    def token_not_valid(request: Request, exc: TokenValidException):
+        return ORJSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={
+                "message": "Token is not valid"
+            }
+        )
+        
+    

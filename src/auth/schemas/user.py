@@ -33,6 +33,5 @@ class UserSchema(BaseModel):
 
 class UserResponce(BaseModel):
     id: UUID
-    name: str
-    last_name: str
     email: EmailStr
+    role: UserRole
