@@ -31,8 +31,13 @@ class UserSchema(BaseModel):
         return data
         
 
-class UserResponce(BaseModel):
+class UserResponceSchema(BaseModel):
     id: UUID
-    name: str
-    last_name: str
     email: EmailStr
+    role: UserRole
+    
+
+class UserLoginSchema(BaseModel):
+    login: EmailStr
+    password: str
+    

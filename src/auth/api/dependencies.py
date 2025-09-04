@@ -1,4 +1,18 @@
+from uuid import UUID
+
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Depends, HTTPException, status, Request
+from redis.asyncio import ConnectionPool
+
 from core.db import db_core
+from core import settings
+from core.redis import redis_core
+from auth.service import RedisManager
+from auth.utils.jwt.jwt_manager import JwtToken
+from auth.schemas import JWTPayload
+
+
+security: HTTPAuthorizationCredentials = HTTPBearer()
 
 
 async def get_session_depen():
@@ -12,3 +26,40 @@ async def get_session_depen():
         finally:
             await session.close()
 
+
+async def get_redis_client_depen(request: Request):
+    async with redis_core.create_client() as client:
+        yield RedisManager(client=client)
+    
+        
+async def get_jwt_token_depen():
+    return JwtToken(
+        private_key=settings.auth.private_key.read_text(),
+        public_key=settings.auth.public_key.read_text(),
+        algorithm=settings.auth.algorithm,
+        access_token_lifetime_minutes=settings.auth.access_token_lifetime_minutes,
+        refresh_token_lifetime_minutes=settings.auth.refresh_token_lifetime_minutes
+    )
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials=Depends(security),
+    jwt_token: JwtToken = Depends(get_jwt_token_depen)
+):
+    token: str = credentials.credentials
+    payload: JWTPayload  = jwt_token.decode_jwt_token(token)
+    user: UUID = payload.sub
+    role: str = payload.role
+    
+    if role != "user" or role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "message": "Not enough rights",
+                "detail": "You need to login"
+            }
+        )
+        
+    return user
+    
+    

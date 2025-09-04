@@ -29,3 +29,5 @@ class UserRepository:
     async def delete_user(self, user_id: UUID) -> None:
         query = delete(User).where(User.id == user_id)
         await self._session.execute(query)
+
+    

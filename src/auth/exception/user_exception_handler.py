@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
-from auth.exception.exception import UserAlreadeRegistered
+from auth.exception.exception import UserAlreadeRegistered, IncorrectUserLoginData
 
 
 def user_error_handlers(app: FastAPI):
@@ -20,3 +20,19 @@ def user_error_handlers(app: FastAPI):
                 }
             },
         )
+        
+    @app.exception_handler(IncorrectUserLoginData)
+    def incorrect_user_login_data(request: Request, exc: IncorrectUserLoginData):
+        ''' Обработка ошибки когда пользователь ввел неверные данные при входе '''
+        return ORJSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={
+                "message": exc.message,
+                "detail": "Сheck the accuracy of the entered data",
+                "content": {
+                    "email": exc.login,
+                    "password": exc.password
+                }
+            }
+        )
+    
