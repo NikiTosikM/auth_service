@@ -1,10 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
-from auth.exception.exception import (
-    UserAlreadeRegistered,
-    TokenValidException
-)
+from auth.exception.exception import UserAlreadeRegistered, IncorrectUserLoginData
 
 
 def user_error_handlers(app: FastAPI):
@@ -24,15 +21,18 @@ def user_error_handlers(app: FastAPI):
             },
         )
         
-def token_handler(app: FastAPI):
-    """ Обработчик, работающий с ошибками токена """
-    @app.exception_handler(TokenValidException)
-    def token_not_valid(request: Request, exc: TokenValidException):
+    @app.exception_handler(IncorrectUserLoginData)
+    def incorrect_user_login_data(request: Request, exc: IncorrectUserLoginData):
+        ''' Обработка ошибки когда пользователь ввел неверные данные при входе '''
         return ORJSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             content={
-                "message": "Token is not valid"
+                "message": exc.message,
+                "detail": "Сheck the accuracy of the entered data",
+                "content": {
+                    "email": exc.login,
+                    "password": exc.password
+                }
             }
         )
-        
     

@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent 
-BASE_DIR = Path(__file__).resolve().resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class ConfigApp(BaseModel):
@@ -39,8 +39,8 @@ class RedisConfig(BaseModel):
     
 
 class AuthSetting(BaseModel):
-    private_key: Path = BASE_DIR / "keys" /  "private.xml"
-    public_key: Path = BASE_DIR / "keys" / "public.xml"
+    private_key: Path = BASE_DIR / "keys" /  "private.pem"
+    public_key: Path = BASE_DIR / "keys" / "public.pem"
     algorithm: str = "RS256"
     access_token_lifetime_minutes: int = 15
     refresh_token_lifetime_minutes: int = 10800

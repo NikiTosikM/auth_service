@@ -5,7 +5,7 @@ import uvicorn
 
 from core import settings
 from auth.api import main_router
-from auth.exception import user_error_handlers
+from auth.exception import user_error_handlers, token_error_handler
 from core.redis import redis_core
 
 
@@ -23,7 +23,7 @@ app = FastAPI()
 app.include_router(main_router)
 
 user_error_handlers(app)
-
+token_error_handler(app)
 
 if __name__ == "__main__":
     uvicorn.run(

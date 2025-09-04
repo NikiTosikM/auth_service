@@ -25,8 +25,8 @@ class RedisCore:
         return self._pool
 
     @asynccontextmanager
-    async def create_client(self, pool: ConnectionPool):
-        client = Redis(connection_pool=pool)
+    async def create_client(self):
+        client = Redis(connection_pool=self._pool)
         try:
             yield client
         finally:
