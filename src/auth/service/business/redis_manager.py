@@ -29,7 +29,7 @@ class RedisManager:
             )
             await pipline.execute()
 
-    async def expanding_list_invali_tokens(self, jti: str, user_id: UUID) -> None:
+    async def expanding_list_invalid_tokens(self, jti: str) -> None:
         """
         Удаление refresh токена из списка допустимых
         применение: /logout  

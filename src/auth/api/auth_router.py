@@ -2,22 +2,35 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import ORJSONResponse
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.schemas import UserSchema, UserResponceSchema, UserLoginSchema, JWTsLoginSchema
-from auth.api.dependencies import get_session_depen
+from auth.api.dependencies import (
+    get_current_user,
+    get_jwt_token_depen,
+    get_redis_client_depen,
+    get_session_depen,
+)
+from auth.schemas import (
+    JWTsLoginSchema,
+    UserLoginSchema,
+    UserLogoutSchema,
+    UserResponceSchema,
+    UserSchema,
+)
 from auth.service import UserAuthService
-from auth.utils.jwt.jwt_manager import JwtToken
 from auth.service.business.redis_manager import RedisManager
-from auth.api.dependencies import get_redis_client_depen, get_jwt_token_depen
+from auth.utils.jwt.jwt_manager import JwtToken
+
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post(
     "/register",
-    summary="Регистрация пользователя", 
-    response_model=UserResponceSchema
+    summary="Регистрация пользователя",
+    response_model=UserResponceSchema,
+    response_class=ORJSONResponse,
 )
 async def register_user(
     user: Annotated[UserSchema, Body()],
@@ -32,7 +45,7 @@ async def register_user(
 
 @router.post(
     "/login",
-    response_model=JWTsLoginSchema, 
+    response_model=JWTsLoginSchema,
     response_class=ORJSONResponse,
     summary="Аутентификация и авторизация пользователя",
     description="Пользователь вводит свой пароль и почту и происходит проверка подлинности данных, \
@@ -58,9 +71,32 @@ async def login(
     return {"access_token": access_token, "refresh_token": refresh_token}
 
 
-@router.post("/logout")
+@router.post(
+    "/logout",
+    summary="Выход пользователя из аккаунта",
+    description="Удаляет refresh-token пользователя, \
+    для того чтобы в дальнейшем нельзя было обновить access-token",
+)
 async def logout(
+    logout_data: Annotated[UserLogoutSchema, Body()],
+    credentials: HTTPAuthorizationCredentials = Depends(get_current_user),
     jwt: JwtToken = Depends(get_jwt_token_depen),
     redis: RedisManager = Depends(get_redis_client_depen),
 ):
-    pass
+    availability_refresh_token: bool = await redis.validation_token(
+        jti=logout_data.refresh_token
+    )
+    jwt.validate_refresh_token(token=availability_refresh_token)
+    await redis.expanding_list_invalid_tokens(jti=logout_data.refresh_token)
+
+    return {"status": "success"}
+
+
+@router.get(
+    "/protected",
+    summary="Защищенный метод",
+    description="Обращение к данному методу без авторизации невозможно, \
+        поэтому данный метод проверяет права пользователя и выдает доступ к данным",
+)
+def protected(credentials: HTTPAuthorizationCredentials = Depends(get_current_user)):
+    return {"status": "success"}

@@ -1,6 +1,6 @@
 from auth.exception import UserAlreadeRegistered, IncorrectUserLoginData
 from auth.models.user import User
-from auth.schemas import UserResponce, UserSchema, UserLogin
+from auth.schemas import UserResponceSchema, UserSchema, UserLoginSchema
 from auth.service.repository.user_data import UserRepository
 from auth.utils.hash_password.hashing import hashing_password
 
@@ -9,7 +9,7 @@ class UserAuthService:
     def __init__(self, session):
         self._repository = UserRepository(session=session)
 
-    async def create_user(self, user_data: UserSchema) -> UserResponce:
+    async def create_user(self, user_data: UserSchema) -> UserResponceSchema:
         """Создание пользователя"""
         await self._check_user_availability(user_email=user_data.email)
 
@@ -23,13 +23,13 @@ class UserAuthService:
         }
 
         created_user: User = await self._repository.create_user(data=user_data)
-        returning_user_data = UserResponce(**created_user.__dict__)
+        returning_user_data = UserResponceSchema(**created_user.__dict__)
 
         return returning_user_data
 
     async def check_correctness_user_data(
-        self, user_data: UserLogin
-    ) -> UserResponce | None:
+        self, user_data: UserLoginSchema
+    ) -> UserResponceSchema | None:
         """
         Проверка на существование пользователя по email
         Необходимо при входе в аккаунт. Если пользователч НЕТ, то выбрасываем исключение
@@ -45,7 +45,7 @@ class UserAuthService:
                 password=user_data.password, login=user_data.login
             )
 
-        return UserResponce(**user_presence.__dict__)
+        return UserResponceSchema(**user_presence.__dict__)
 
     async def _check_user_availability(self, user_email: str) -> User | None:
         """

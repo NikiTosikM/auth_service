@@ -7,8 +7,9 @@ from fastapi import status
 from fastapi.exceptions import HTTPException
 from auth.schemas import JWTPayloadSchema
 
-from auth.schemas import UserResponce
+from auth.schemas import UserResponceSchema
 from core import settings
+from auth.exception import TokenValidException
 
 
 
@@ -27,7 +28,7 @@ class JwtToken:
         self._refresh_token_lifetime: int = refresh_token_lifetime_minutes
         self._algorithm: str = algorithm
 
-    def create_access_jwt_token(self, user_data: UserResponce) -> str:
+    def create_access_jwt_token(self, user_data: UserResponceSchema) -> str:
         """
         Создание access-token
         применение: /login, /refresh
@@ -55,7 +56,7 @@ class JwtToken:
         refresh_token: str = secrets.token_urlsafe(32)
         return refresh_token
 
-    def issuing_tokens(self, user_data: UserResponce):
+    def issuing_tokens(self, user_data: UserResponceSchema) -> tuple[str, str]:
         '''
         Выдача пользователю refresh и access tokens
         применение: /login, /refresh
@@ -70,7 +71,7 @@ class JwtToken:
         )
         return creation_access_token, creation_ref_token
 
-    def decode_jwt_token(self, token: str):
+    def decode_jwt_token(self, token: str) -> JWTPayloadSchema:
         try:
             decoded_payload = jwt.decode(token, self._public_key, self._algorithm)
 
@@ -90,5 +91,10 @@ class JwtToken:
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is not valid"
             )
         #обработать еще pydantic ошибки 
+        
+    def validate_refresh_token(self, token: str) -> None:
+        if not token:
+            raise TokenValidException("Token is not valid")
+        
             
         

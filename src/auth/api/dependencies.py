@@ -2,14 +2,13 @@ from uuid import UUID
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Depends, HTTPException, status, Request
-from redis.asyncio import ConnectionPool
 
 from core.db import db_core
 from core import settings
 from core.redis import redis_core
 from auth.service import RedisManager
 from auth.utils.jwt.jwt_manager import JwtToken
-from auth.schemas import JWTPayload
+from auth.schemas import JWTPayloadSchema
 
 
 security: HTTPAuthorizationCredentials = HTTPBearer()
@@ -47,11 +46,11 @@ def get_current_user(
     jwt_token: JwtToken = Depends(get_jwt_token_depen)
 ):
     token: str = credentials.credentials
-    payload: JWTPayload  = jwt_token.decode_jwt_token(token)
+    payload: JWTPayloadSchema = jwt_token.decode_jwt_token(token)
     user: UUID = payload.sub
     role: str = payload.role
     
-    if role != "user" or role != "admin":
+    if role not in ["user", "admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
