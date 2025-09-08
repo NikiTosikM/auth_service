@@ -1,7 +1,16 @@
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import MetaData
+from uuid import uuid4
+from datetime import timezone
+
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import DateTime
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class Base(DeclarativeBase):
-    metadata = MetaData()
-    
+    id: Mapped[UUID] = mapped_column(UUID(), primary_key=True, default=uuid4)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=timezone.utc)
+
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower() + "s"
