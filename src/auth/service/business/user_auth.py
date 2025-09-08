@@ -1,7 +1,7 @@
 from auth.exception import UserAlreadeRegistered, IncorrectUserLoginData
 from auth.models.user import User
 from auth.schemas import UserResponceSchema, UserSchema, UserLoginSchema
-from auth.service.repository.user_data import UserRepository
+from auth.service.repository.user_repository import UserRepository
 from auth.utils.hash_password.hashing import hashing_password
 
 

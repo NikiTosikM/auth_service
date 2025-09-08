@@ -16,8 +16,14 @@ class DBCore:
 
     @asynccontextmanager
     async def get_async_session(self) -> AsyncGenerator[AsyncSession, None]:
-        async with self._async_sessionmaker() as session:
+        session: AsyncSession = self._async_sessionmaker()
+        try:
             yield session
+            await session.commit()
+        except Exception: 
+            await session.rollback()
+        finally:
+            await session.close()
 
 
 db_core = DBCore(url=settings.db.get_db_url)
