@@ -29,13 +29,19 @@ class UserSchema(BaseModel):
         if not verif_expression.match(data.password):
             raise ValidationError("The password was not verified")
         return data
-        
+
+
+class UserDBSchema(BaseModel):
+    name: str
+    last_name: str
+    email: EmailStr 
+    password: bytes
+    role: UserRole
 
 class UserResponceSchema(BaseModel):
     id: UUID
     email: EmailStr
     role: UserRole
-    
 
 class UserLoginSchema(BaseModel):
     login: EmailStr

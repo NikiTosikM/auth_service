@@ -6,7 +6,6 @@ from sqlalchemy import insert, Result, delete
 from pydantic import BaseModel
 
 from core.db import Base
-from auth.models.user import User
 
 
 Model = TypeVar("Model", bound=Base)
@@ -28,12 +27,12 @@ class BaseRepository(Generic[Model, Schema]):
         ''' Создание '''
         stmt = (
             insert(self.model)
-            .values(data.model_dump())
+            .values(**data.model_dump())
             .returning(self.model)
         )
         result: Result = await self.session.execute(stmt)
 
-        return result.scalar_one_or_none()
+        return result.scalar_one()
     
     async def delete_user(self, id: UUID) -> None:
         ''' Удаление '''
