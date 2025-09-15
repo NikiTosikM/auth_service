@@ -4,6 +4,6 @@ from .user import (
     UserResponceSchema,
     UserLoginSchema,
     UserLogoutSchema,
-    UserDBSchema
+    UserDBSchema,
 )
-from .jwt_token import JWTPayloadSchema, JWTsLoginSchema
+from .jwt_token import JWTPayloadSchema, JWTsPairSchema, RefreshTokenSchema

@@ -14,6 +14,10 @@ class JWTPayloadSchema(BaseModel):
     jti: UUID
     
     
-class JWTsLoginSchema(BaseModel):
+class JWTsPairSchema(BaseModel):
     access_token: str
+    refresh_token: str
+    
+    
+class RefreshTokenSchema(BaseModel):
     refresh_token: str

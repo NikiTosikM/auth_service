@@ -2,3 +2,4 @@ from .exception import UserAlreadeRegistered, IncorrectUserLoginData, TokenValid
 
 from .user_exception_handler import user_error_handlers
 from .token_exception_handler import token_error_handler
+from .server_exception_handler import server_error_handler

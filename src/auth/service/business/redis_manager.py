@@ -1,9 +1,9 @@
-from uuid import UUID
 import json
 
 from redis.asyncio import Redis
 
 from core import settings
+from auth.schemas import UserResponceSchema
 
 
 class RedisManager:
@@ -15,12 +15,12 @@ class RedisManager:
     def __init__(self, client: Redis):
         self._client = client
 
-    async def adding_refresh_token(self, jti: str, user_id: UUID) -> None:
+    async def adding_refresh_token(self, jti: str, user_data: UserResponceSchema) -> None:
         """
         Добавляем refresh-token в redis
         применение: /login
         """
-        token_data = {"user_id": str(user_id), "jti": jti}
+        token_data = {"id": str(user_data.id), "email": user_data.email, "role": user_data.role}
         async with self._client.pipeline() as pipline:
             await pipline.set(f"refresh-token:{jti}", json.dumps(token_data))
             await pipline.expire(
@@ -36,12 +36,15 @@ class RedisManager:
         """
         await self._client.delete(f"refresh-token:{jti}")
 
-    async def validation_token(self, jti: str) -> bool:
+    async def validation_token(self, jti: str) -> UserResponceSchema | None:
         """
-        Проверяем валидность токена
+        Проверяем валидность токена. Если токен существует, то получаем данные о пользователе
         применение: /refresh   
         """
-        existence_token: bool = await self._client.exists(f"refresh-token:{jti}")
-        return existence_token
+        serialized_data = await self._client.get(f"refresh-token:{jti}") # получаем данные по ключу
+        if serialized_data:
+            result: dict = json.loads(serialized_data) 
+            user_data: UserResponceSchema = UserResponceSchema(**result)
+        return user_data if serialized_data else None
         
         
