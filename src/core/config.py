@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -37,6 +37,15 @@ class RedisConfig(BaseModel):
     max_connection_pool: int = 10
     db_number: int = 0
     
+    @property
+    def get_redis_url(self):
+        return f"redis://{self.host}:{self.port}"
+    
+
+class EmailConfig(BaseModel):
+    sender_email: EmailStr
+    sender_password: str     
+    
 
 class AuthSetting(BaseModel):
     private_key: Path = BASE_DIR / "keys" /  "private.pem"
@@ -56,5 +65,6 @@ class Settings(BaseSettings):
     db: DBConfig
     auth: AuthSetting = AuthSetting()
     redis: RedisConfig
+    email: EmailConfig
 
 settings = Settings()

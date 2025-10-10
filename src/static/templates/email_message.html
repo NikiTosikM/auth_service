@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .welcome-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Добро пожаловать!</h1>
+        <p>Регистрация успешно завершена</p>
+    </div>
+    
+    <div class="content">
+        <div class="welcome-text">
+            <p>Здравствуйте, <strong>{{name}} {{last_name}}</strong>!</p>
+            <p>Мы рады приветствовать вас в нашем сервисе. Ваша регистрация прошла успешно.</p>
+        </div>
+        
+        <div class="user-info">
+            <h3>Ваши данные:</h3>
+            <p><strong>Имя:</strong> {{name}}</p>
+            <p><strong>Фамилия:</strong> {{last_name}}</p>
+            <p><strong>Email:</strong> {{recipient_email}}</p>
+        </div>
+        
+        <p>Теперь вам доступны все возможности нашего сервиса</p>
+    </div>
+</body>

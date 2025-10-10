@@ -17,10 +17,12 @@ from auth.schemas import (
     UserLogoutSchema,
     UserResponceSchema,
     UserSchema,
+    UserEmailSchema,
 )
 from auth.service import UserAuthService
 from auth.service.business.redis_manager import RedisManager
 from auth.utils.jwt.jwt_manager import JwtToken
+from tasks.tasks import send_email_message_to_user
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -33,12 +35,20 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
     response_class=ORJSONResponse,
 )
 async def register_user(
-    user: Annotated[UserSchema, Body()],
+    user: UserSchema,
     session: AsyncSession = Depends(get_session_depen),
 ):
+    # регистрация пользователя
     user_service = UserAuthService(session=session)
-
     created_user: UserResponceSchema = await user_service.create_user(user_data=user)
+
+    # отправка email message
+    user_data_for_email_message = UserEmailSchema(
+        name=user.name, last_name=user.last_name, recipient_email=user.email
+    )
+    send_email_message_to_user.delay(
+        user_data=user_data_for_email_message.model_dump()
+    )
 
     return created_user
 
@@ -65,6 +75,7 @@ async def login(
 
     # создание токенов
     access_token, refresh_token = jwt.issuing_tokens(user_data=user)
+
     # сохранение refresh токена в redis
     await redis.adding_refresh_token(jti=refresh_token, user_id=user.id)
 

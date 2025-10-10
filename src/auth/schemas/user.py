@@ -50,3 +50,9 @@ class UserLoginSchema(BaseModel):
     
 class UserLogoutSchema(BaseModel):
     refresh_token: str
+    
+    
+class UserEmailSchema(BaseModel):
+    name: str
+    last_name: str
+    recipient_email: str
