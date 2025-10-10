@@ -10,25 +10,25 @@ from auth.schemas import JWTPayloadSchema
 from auth.schemas import UserResponceSchema
 from core import settings
 from auth.exception import TokenValidException
-
+from auth.schemas import UserRole
 
 
 class JwtToken:
     def __init__(
-        self, 
+        self,
         private_key: str,
         public_key: str,
         algorithm: str,
         access_token_lifetime_minutes: int,
-        refresh_token_lifetime_minutes: int
-        ):
+        refresh_token_lifetime_minutes: int,
+    ):
         self._private_key: str = private_key
         self._public_key: str = public_key
         self._access_token_lifetime: int = access_token_lifetime_minutes
         self._refresh_token_lifetime: int = refresh_token_lifetime_minutes
         self._algorithm: str = algorithm
 
-    def create_access_jwt_token(self, user_data: UserResponceSchema) -> str:
+    def create_access_jwt_token(self, user_id: UUID, email: str, role: UserRole) -> str:
         """
         Создание access-token
         применение: /login, /refresh
@@ -38,9 +38,9 @@ class JwtToken:
         )
         payload = {
             "iss": settings.app.host,
-            "sub": str(user_data.id),
-            "email": user_data.email,
-            "role": user_data.role,
+            "sub": str(user_id),
+            "email": email,
+            "role": role,
             "exp": expire,
             "jti": str(uuid4()),
         }
@@ -57,17 +57,15 @@ class JwtToken:
         return refresh_token
 
     def issuing_tokens(self, user_data: UserResponceSchema) -> tuple[str, str]:
-        '''
-        Выдача пользователю refresh и access tokens
+        """
+        Создание refresh и access tokens
         применение: /login, /refresh
-        '''
+        """
         # создаем refresh token
-        creation_ref_token: str = self.create_refresh_jwt_token(
-            user_data.id
-        )
+        creation_ref_token: str = self.create_refresh_jwt_token(user_data.id)
         # создаем access token
         creation_access_token: str = self.create_access_jwt_token(
-            user_data=user_data
+            user_id=user_data.id, email=user_data.email, role=user_data.role
         )
         return creation_access_token, creation_ref_token
 
@@ -90,11 +88,8 @@ class JwtToken:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is not valid"
             )
-        #обработать еще pydantic ошибки 
-        
-    def validate_refresh_token(self, token: str) -> None:
-        if not token:
+        # обработать еще pydantic ошибки
+
+    def validate_refresh_token(self, user_data: UserResponceSchema | None) -> None:
+        if not user_data:
             raise TokenValidException("Token is not valid")
-        
-            
-        

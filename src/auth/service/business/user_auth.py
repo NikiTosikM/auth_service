@@ -2,7 +2,7 @@ from auth.exception import UserAlreadeRegistered, IncorrectUserLoginData
 from auth.models.user import User
 from auth.schemas import UserResponceSchema, UserSchema, UserLoginSchema, UserDBSchema
 from auth.service.repository.user_repository import UserRepository
-from auth.utils.hash_password.hashing import hashing_password
+from auth.utils.hash_password.hashing import hashing
 
 
 class UserAuthService:
@@ -13,7 +13,7 @@ class UserAuthService:
         """Создание пользователя"""
         await self._check_user_availability(user_email=user_data.email)
 
-        hash_password: bytes = hashing_password.create_hash(user_data.password)
+        hash_password: bytes = hashing.create_hash(user_data.password)
         user_data = UserDBSchema(
             name=user_data.name,
             last_name=user_data.last_name,
@@ -37,10 +37,10 @@ class UserAuthService:
         user_presence: User | None = await self._get_user_by_email(
             user_email=user_data.login
         )
-        password_matching: bool = hashing_password.password_verification(
-            password=user_data.password, hash=user_presence.password
+        password_matching: bool = hashing.hash_verification(
+            data=user_data.password, hash=user_presence.password
         ) if user_presence else False
-        if not user_presence and not password_matching:
+        if not user_presence or not password_matching:
             raise IncorrectUserLoginData(
                 password=user_data.password, login=user_data.login
             )

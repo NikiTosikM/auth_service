@@ -30,7 +30,7 @@ class RedisCore:
         try:
             yield client
         finally:
-            await client.close()
+            await client.aclose()
 
     async def close_pool(self):
         if self._pool:

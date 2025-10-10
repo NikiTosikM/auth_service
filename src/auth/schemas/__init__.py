@@ -7,4 +7,4 @@ from .user import (
     UserDBSchema,
     UserEmailSchema
 )
-from .jwt_token import JWTPayloadSchema, JWTsLoginSchema
+from .jwt_token import JWTPayloadSchema, JWTsPairSchema, RefreshTokenSchema

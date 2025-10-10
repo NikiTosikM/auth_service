@@ -12,7 +12,7 @@ from auth.api.dependencies import (
     get_session_depen,
 )
 from auth.schemas import (
-    JWTsLoginSchema,
+    JWTsPairSchema,
     UserLoginSchema,
     UserLogoutSchema,
     UserResponceSchema,
@@ -55,7 +55,7 @@ async def register_user(
 
 @router.post(
     "/login",
-    response_model=JWTsLoginSchema,
+    response_model=JWTsPairSchema,
     response_class=ORJSONResponse,
     summary="Аутентификация и авторизация пользователя",
     description="Пользователь вводит свой пароль и почту и происходит проверка подлинности данных, \
@@ -77,7 +77,7 @@ async def login(
     access_token, refresh_token = jwt.issuing_tokens(user_data=user)
 
     # сохранение refresh токена в redis
-    await redis.adding_refresh_token(jti=refresh_token, user_id=user.id)
+    await redis.adding_refresh_token(jti=refresh_token, user_data=user)
 
     return {"access_token": access_token, "refresh_token": refresh_token}
 
@@ -94,10 +94,10 @@ async def logout(
     jwt: JwtToken = Depends(get_jwt_token_depen),
     redis: RedisManager = Depends(get_redis_client_depen),
 ):
-    availability_refresh_token: bool = await redis.validation_token(
+    availability_refresh_token: UserResponceSchema = await redis.validation_token(
         jti=logout_data.refresh_token
     )
-    jwt.validate_refresh_token(token=availability_refresh_token)
+    jwt.validate_refresh_token(user_id=availability_refresh_token.id)
     await redis.expanding_list_invalid_tokens(jti=logout_data.refresh_token)
 
     return {"status": "success"}
