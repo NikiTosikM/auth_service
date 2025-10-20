@@ -1,3 +1,5 @@
+# ruff: noqa: F401
+
 from .user import (
     UserRole,
     UserSchema,
@@ -5,6 +7,6 @@ from .user import (
     UserLoginSchema,
     UserLogoutSchema,
     UserDBSchema,
-    UserEmailSchema
+    UserEmailSchema,
 )
 from .jwt_token import JWTPayloadSchema, JWTsPairSchema, RefreshTokenSchema

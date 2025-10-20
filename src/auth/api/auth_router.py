@@ -46,9 +46,7 @@ async def register_user(
     user_data_for_email_message = UserEmailSchema(
         name=user.name, last_name=user.last_name, recipient_email=user.email
     )
-    send_email_message_to_user.delay(
-        user_data=user_data_for_email_message.model_dump()
-    )
+    send_email_message_to_user.delay(user_data=user_data_for_email_message.model_dump())
 
     return created_user
 

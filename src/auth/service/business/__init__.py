@@ -1,1 +1,1 @@
-from .user_auth import UserAuthService
+from .user_auth import UserAuthService  # noqa: F401

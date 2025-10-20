@@ -19,7 +19,7 @@ class UserAuthService:
             last_name=user_data.last_name,
             email=user_data.email,
             password=hash_password,
-            role=user_data.role
+            role=user_data.role,
         )
 
         created_user: User = await self._user_repository.create(data=user_data)
@@ -37,9 +37,13 @@ class UserAuthService:
         user_presence: User | None = await self._get_user_by_email(
             user_email=user_data.login
         )
-        password_matching: bool = hashing.hash_verification(
-            data=user_data.password, hash=user_presence.password
-        ) if user_presence else False
+        password_matching: bool = (
+            hashing.hash_verification(
+                data=user_data.password, hash=user_presence.password
+            )
+            if user_presence
+            else False
+        )
         if not user_presence or not password_matching:
             raise IncorrectUserLoginData(
                 password=user_data.password, login=user_data.login

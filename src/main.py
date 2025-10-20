@@ -6,20 +6,19 @@ import uvicorn
 from core import settings
 from auth.api import main_router
 from auth.exception import (
-    user_error_handlers, 
+    user_error_handlers,
     token_error_handler,
-    server_error_handler
+    server_error_handler,
 )
 from core.redis import redis_core
-
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis_core.create_connection_pool()
-    
+
     yield
-    
+
     await redis_core.close_pool()
 
 
@@ -35,5 +34,5 @@ if __name__ == "__main__":
         "main:app",
         host=settings.app.host,
         port=settings.app.port,
-        reload=settings.app.reload
+        reload=settings.app.reload,
     )

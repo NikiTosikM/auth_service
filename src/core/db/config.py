@@ -12,7 +12,9 @@ class DBCore:
             url=url,
             echo=True,
         )
-        self._async_sessionmaker: async_sessionmaker = async_sessionmaker(self._async_engine)
+        self._async_sessionmaker: async_sessionmaker = async_sessionmaker(
+            self._async_engine
+        )
 
     @asynccontextmanager
     async def get_async_session(self) -> AsyncGenerator[AsyncSession, None]:

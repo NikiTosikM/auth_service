@@ -13,28 +13,19 @@ Schema = TypeVar("Schema", bound=BaseModel)
 
 
 class BaseRepository(Generic[Model, Schema]):
-    def __init__(
-        self,
-        model: type[Model],
-        schema: type[Schema], 
-        session: AsyncSession
-    ):
+    def __init__(self, model: type[Model], schema: type[Schema], session: AsyncSession):
         self.model = model
         self.schema = schema
-        self.session = session
-        
+        self.session: AsyncSession = session
+
     async def create(self, data: Schema) -> Model:
-        ''' Создание '''
-        stmt = (
-            insert(self.model)
-            .values(**data.model_dump())
-            .returning(self.model)
-        )
+        """Создание"""
+        stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result: Result = await self.session.execute(stmt)
 
         return result.scalar_one()
-    
+
     async def delete_user(self, id: UUID) -> None:
-        ''' Удаление '''
+        """Удаление"""
         stmt = delete(self.model).where(self.model.id == id)
         await self._session.execute(stmt)
