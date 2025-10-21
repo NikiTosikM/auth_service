@@ -3,10 +3,12 @@
 from core.celery.config import celery_app
 from auth.service.business.email_manager import EmailService
 from core.email.config import EmailConfig
+from loguru import logger
 
 
 @celery_app.task
 def send_email_message_to_user(user_data: dict):
+    logger.info("Отправка письма на почту и добавление его в 'Отправленные' ")
     with (
         EmailConfig.create_smtp_connection() as smtp,
         EmailConfig.create_imap_connection() as imap,

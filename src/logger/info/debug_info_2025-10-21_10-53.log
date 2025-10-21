@@ -1,0 +1,2 @@
+2025-10-21T10:53:51.334971+0300 | INFO | config.py | Start endpoint - register_user. Parametrs - (), {'session': <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x00000144959BEBA0>, 'user': UserSchema(name='kartoshka', last_name='ogorodka', email='marykovn@mail.ru', password='12345kartoshka!', role=<UserRole.user: 'user'>)}
+2025-10-21T10:53:58.167993+0300 | INFO | config.py | Endpoint - register_user completed execution. Time - 0:00:06.833022

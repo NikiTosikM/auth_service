@@ -6,6 +6,7 @@ import jwt
 from fastapi import status
 from fastapi.exceptions import HTTPException
 from auth.schemas import JWTPayloadSchema
+from loguru import logger
 
 from auth.schemas import UserResponceSchema
 from core import settings
@@ -44,6 +45,9 @@ class JwtToken:
             "exp": expire,
             "jti": str(uuid4()),
         }
+
+        logger.debug(f"Создание access_token с данными {payload}")
+
         return jwt.encode(
             payload=payload, key=self._private_key, algorithm=self._algorithm
         )
@@ -54,6 +58,9 @@ class JwtToken:
         применение: /login, /refresh
         """
         refresh_token: str = secrets.token_urlsafe(32)
+
+        logger.debug(f"Создание refresh_token {refresh_token}")
+
         return refresh_token
 
     def issuing_tokens(self, user_data: UserResponceSchema) -> tuple[str, str]:
@@ -67,6 +74,7 @@ class JwtToken:
         creation_access_token: str = self.create_access_jwt_token(
             user_id=user_data.id, email=user_data.email, role=user_data.role
         )
+        logger.debug("Access и refresh токены созданы")
         return creation_access_token, creation_ref_token
 
     def decode_jwt_token(self, token: str) -> JWTPayloadSchema:
@@ -76,20 +84,26 @@ class JwtToken:
             return JWTPayloadSchema(**decoded_payload)
 
         except jwt.InvalidSignatureError:
+            logger.error(f"Token {token} signature is not valid")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token signature is invalid",
             )
         except jwt.ExpiredSignatureError:
+            logger.error(f"Token {token} has expired")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
             )
         except jwt.InvalidTokenError:
+            logger.error(f"Token {token} is not valid")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is not valid"
             )
         # обработать еще pydantic ошибки
 
-    def validate_refresh_token(self, user_data: UserResponceSchema | None) -> None:
+    def validate_refresh_token(
+        self, user_data: UserResponceSchema | None, token: str
+    ) -> None:
         if not user_data:
+            logger.error(f"Token {token} is not valid")
             raise TokenValidException("Token is not valid")

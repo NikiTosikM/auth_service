@@ -3,6 +3,8 @@ from imaplib import IMAP4_SSL
 from smtplib import SMTP_SSL, SMTPConnectError
 from typing import Generator
 
+from loguru import logger
+
 from core.config import settings
 
 
@@ -24,12 +26,15 @@ class EmailConfig:
         try:
             connection = SMTP_SSL(host=cls.smtp_hostname, port=cls.smtp_port)
             connection.login(user=cls.sender_email, password=cls.sender_password)
+
+            logger.debug("Установлено SMTP соединение")
+
             yield connection
         except SMTPConnectError as conn_error:
             print(f"Ошибка при соединении с SMTP сервером: {conn_error}")
             raise
         except Exception as error:
-            print(f"Неизвестная ошибка SMTP: {error}")
+            logger.error(f"Ошибка SMTP соединения: {error}")
             raise
         finally:
             if connection:
@@ -43,9 +48,12 @@ class EmailConfig:
         try:
             connection = IMAP4_SSL(host=cls.imap_hostname, port=cls.imap_port)
             connection.login(user=cls.sender_email, password=cls.sender_password)
+
+            logger.debug("Установлено IMAP соединение")
+
             yield connection
         except Exception as error:
-            print(f"Ошибка IMAP соединения: {error}")
+            logger.error(f"Ошибка IMAP соединения: {error}")
             raise
         finally:
             if connection:

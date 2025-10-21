@@ -23,6 +23,7 @@ from auth.service import UserAuthService
 from auth.service.business.redis_manager import RedisManager
 from auth.utils.jwt.jwt_manager import JwtToken
 from tasks.tasks import send_email_message_to_user
+from logger.config import log_endpoint
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -34,6 +35,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
     response_model=UserResponceSchema,
     response_class=ORJSONResponse,
 )
+@log_endpoint
 async def register_user(
     user: UserSchema,
     session: AsyncSession = Depends(get_session_depen),
@@ -59,6 +61,7 @@ async def register_user(
     description="Пользователь вводит свой пароль и почту и происходит проверка подлинности данных, \
     если все успешно, то выдается access и refresh токены",
 )
+@log_endpoint
 async def login(
     auth_data: Annotated[UserLoginSchema, Body()],
     jwt: JwtToken = Depends(get_jwt_token_depen),
@@ -86,6 +89,7 @@ async def login(
     description="Удаляет refresh-token пользователя, \
     для того чтобы в дальнейшем нельзя было обновить access-token",
 )
+@log_endpoint
 async def logout(
     logout_data: Annotated[UserLogoutSchema, Body()],
     credentials: HTTPAuthorizationCredentials = Depends(get_current_user),
@@ -107,5 +111,6 @@ async def logout(
     description="Обращение к данному методу без авторизации невозможно, \
         поэтому данный метод проверяет права пользователя и выдает доступ к данным",
 )
+@log_endpoint
 def protected(credentials: HTTPAuthorizationCredentials = Depends(get_current_user)):
     return {"status": "success"}

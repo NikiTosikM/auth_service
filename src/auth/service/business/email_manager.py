@@ -8,6 +8,7 @@ from smtplib import SMTP
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 
 from core.config import settings
+from loguru import logger
 
 
 @dataclass
@@ -66,8 +67,12 @@ class EmailService:
 
         return msg
 
-    def send_message(self, message):
+    def send_message(self, message, email_recipient):
+        logger.debug(f"Отправка сообщения на адрес - {email_recipient}")
         self.sender.send_message(message=message)
+        logger.debug(f"Выполнена отправка сообщения на адрес - {email_recipient}")
 
     def save_message(self, message):
+        logger.debug("Добавление сообщения в  'Отправленные' ")
         self.saver.add_message_to_sent_folder(message=message)
+        logger.debug("Сообщение добавленно в 'Отправленные' ")

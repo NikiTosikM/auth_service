@@ -9,6 +9,7 @@ from core.redis import redis_core
 from auth.service import RedisManager
 from auth.utils.jwt.jwt_manager import JwtToken
 from auth.schemas import JWTPayloadSchema
+from loguru import logger
 
 
 security: HTTPAuthorizationCredentials = HTTPBearer()
@@ -38,6 +39,8 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     jwt_token: JwtToken = Depends(get_jwt_token_depen),
 ):
+    logger.debug("Проверка прав пользователя")
+
     token: str = credentials.credentials
     payload: JWTPayloadSchema = jwt_token.decode_jwt_token(token)
     user: UUID = payload.sub
@@ -48,5 +51,7 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"message": "Not enough rights", "detail": "You need to login"},
         )
+
+    logger.debug("Проверка прав пользователя успешна")
 
     return user

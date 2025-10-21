@@ -5,6 +5,7 @@ from auth.service.business.redis_manager import RedisManager
 from auth.utils.jwt.jwt_manager import JwtToken
 from auth.api.dependencies import get_redis_client_depen, get_jwt_token_depen
 from auth.schemas import JWTsPairSchema, RefreshTokenSchema, UserResponceSchema
+from logger.config import log_endpoint
 
 
 router = APIRouter(prefix="/token", tags=["Работа с токеном"])
@@ -18,6 +19,7 @@ router = APIRouter(prefix="/token", tags=["Работа с токеном"])
     description="Данный метод будет получать refresh токен, \
         валидировать его и в последующем создаст новые access, refresh токены и отдаст их пользователь",
 )
+@log_endpoint
 async def refresh_tokens(
     refresh_token: RefreshTokenSchema,
     redis: RedisManager = Depends(get_redis_client_depen),
@@ -27,7 +29,7 @@ async def refresh_tokens(
     user_data: UserResponceSchema | None = await redis.validation_token(
         jti=refresh_token.refresh_token
     )
-    jwt.validate_refresh_token(user_data=user_data)
+    jwt.validate_refresh_token(user_data=user_data, token=refresh_token.refresh_token)
 
     # удаляем старый refresh токен из redis
     await redis.expanding_list_invalid_tokens(jti=refresh_token.refresh_token)

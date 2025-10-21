@@ -1,6 +1,7 @@
 import json
 
 from redis.asyncio import Redis
+from loguru import logger
 
 from core import settings
 from auth.schemas import UserResponceSchema
@@ -27,6 +28,9 @@ class RedisManager:
             "email": user_data.email,
             "role": user_data.role,
         }
+
+        logger.debug(f"Добавление токена {jti} для пользователя {user_data.id}")
+
         async with self._client.pipeline() as pipline:
             await pipline.set(f"refresh-token:{jti}", json.dumps(token_data))
             await pipline.expire(
@@ -35,22 +39,32 @@ class RedisManager:
             )
             await pipline.execute()
 
+        logger.debug(f"Токен {jti} добавлен")
+
     async def expanding_list_invalid_tokens(self, jti: str) -> None:
         """
         Удаление refresh токена из списка допустимых
         применение: /logout
         """
+        logger.debug(f"Удаление токена  {jti} ")
         await self._client.delete(f"refresh-token:{jti}")
+        logger.debug(f"Токена {jti} удален")
 
     async def validation_token(self, jti: str) -> UserResponceSchema | None:
         """
         Проверяем валидность токена. Если токен существует, то получаем данные о пользователе
         применение: /refresh
         """
+        logger.debug(f"Поиск токена {jti}")
         serialized_data = await self._client.get(
             f"refresh-token:{jti}"
         )  # получаем данные по ключу
         if serialized_data:
+            logger.debug(f"Токен {jti} найден")
+
             result: dict = json.loads(serialized_data)
             user_data: UserResponceSchema = UserResponceSchema(**result)
+        else:
+            logger.debug(f"Токен {jti} не найден")
+
         return user_data if serialized_data else None

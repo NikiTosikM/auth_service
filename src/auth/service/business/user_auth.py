@@ -3,6 +3,7 @@ from auth.models.user import User
 from auth.schemas import UserResponceSchema, UserSchema, UserLoginSchema, UserDBSchema
 from auth.service.repository.user_repository import UserRepository
 from auth.utils.hash_password.hashing import hashing
+from loguru import logger
 
 
 class UserAuthService:
@@ -31,9 +32,13 @@ class UserAuthService:
         self, user_data: UserLoginSchema
     ) -> UserResponceSchema | None:
         """
-        Проверка на существование пользователя по email
-        Необходимо при входе в аккаунт. Если пользователч НЕТ, то выбрасываем исключение
+        Проверка на существование пользователя с таким email
+        Проверка на правильность введеного пароля
         """
+        logger.debug(
+            f"Проверка login и password пользователя ({user_data.login, user_data.password})"
+        )
+
         user_presence: User | None = await self._get_user_by_email(
             user_email=user_data.login
         )
@@ -49,13 +54,16 @@ class UserAuthService:
                 password=user_data.password, login=user_data.login
             )
 
+        logger.debug("Успешная проверка login и password пользователя")
+
         return UserResponceSchema(**user_presence.__dict__)
 
     async def _check_user_availability(self, user_email: str) -> User | None:
         """
-        Поиск пользователя по email
+        Проверка пользователь на существование с таким email
         Необходимо при регистрации пользователя. Если он СУЩЕСТВУЕТ, то вызываем ошибку
         """
+        logger.debug("Проверка на существоание пользователя с email - {}")
         user: User | None = await self._get_user_by_email(user_email=user_email)
         if user:
             raise UserAlreadeRegistered(email=user_email)

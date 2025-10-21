@@ -6,6 +6,7 @@ from sqlalchemy import insert, Result, delete
 from pydantic import BaseModel
 
 from core.db import Base
+from loguru import logger
 
 
 Model = TypeVar("Model", bound=Base)
@@ -20,12 +21,24 @@ class BaseRepository(Generic[Model, Schema]):
 
     async def create(self, data: Schema) -> Model:
         """Создание"""
+        logger.debug(f"Starting create for {self.model.__name__} with data: {data}")
+
         stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result: Result = await self.session.execute(stmt)
+
+        logger.debug(
+            f"Create the object model {self.model.__name__} completed. Data - {data}"
+        )
 
         return result.scalar_one()
 
     async def delete_user(self, id: UUID) -> None:
         """Удаление"""
+        logger.debug(f"Starting delete object {self.model.__name__} with id: {id}")
+
         stmt = delete(self.model).where(self.model.id == id)
         await self._session.execute(stmt)
+
+        logger.debug(
+            f"Deleted the object model {self.model.__name__} completed. ID - {id}"
+        )
