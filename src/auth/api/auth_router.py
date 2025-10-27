@@ -5,13 +5,13 @@ from fastapi.responses import ORJSONResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.api.dependencies import (
+from src.auth.api.dependencies import (
     get_current_user,
     get_jwt_token_depen,
     get_redis_client_depen,
     get_session_depen,
 )
-from auth.schemas import (
+from src.auth.schemas import (
     JWTsPairSchema,
     UserLoginSchema,
     UserLogoutSchema,
@@ -19,11 +19,11 @@ from auth.schemas import (
     UserSchema,
     UserEmailSchema,
 )
-from auth.service import UserAuthService
-from auth.service.business.redis_manager import RedisManager
-from auth.utils.jwt.jwt_manager import JwtToken
-from tasks.tasks import send_email_message_to_user
-from logger.config import log_endpoint
+from src.auth.service import UserAuthService
+from src.auth.service.business.redis_manager import RedisManager
+from src.auth.utils.jwt.jwt_manager import JwtToken
+from src.tasks.tasks import send_email_message_to_user
+from src.logger.config import log_endpoint
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -63,7 +63,7 @@ async def register_user(
 )
 @log_endpoint
 async def login(
-    auth_data: Annotated[UserLoginSchema, Body()],
+    auth_data: UserLoginSchema,
     jwt: JwtToken = Depends(get_jwt_token_depen),
     session: AsyncSession = Depends(get_session_depen),
     redis: RedisManager = Depends(get_redis_client_depen),
@@ -99,7 +99,7 @@ async def logout(
     availability_refresh_token: UserResponceSchema = await redis.validation_token(
         jti=logout_data.refresh_token
     )
-    jwt.validate_refresh_token(user_id=availability_refresh_token.id)
+    jwt.validate_refresh_token(user_data=availability_refresh_token.id, token=jwt)
     await redis.expanding_list_invalid_tokens(jti=logout_data.refresh_token)
 
     return {"status": "success"}
@@ -112,5 +112,7 @@ async def logout(
         поэтому данный метод проверяет права пользователя и выдает доступ к данным",
 )
 @log_endpoint
-def protected(credentials: HTTPAuthorizationCredentials = Depends(get_current_user)):
+def protected(
+    credentials: HTTPAuthorizationCredentials = Depends(get_current_user),
+) -> dict:
     return {"status": "success"}

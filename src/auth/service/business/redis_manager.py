@@ -3,8 +3,8 @@ import json
 from redis.asyncio import Redis
 from loguru import logger
 
-from core import settings
-from auth.schemas import UserResponceSchema
+from src.core import settings
+from src.auth.schemas import UserResponceSchema
 
 
 class RedisManager:

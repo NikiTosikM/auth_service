@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
-from auth.exception.exception import UserAlreadeRegistered, IncorrectUserLoginData
+from src.auth.exception.exception import UserAlreadeRegistered, IncorrectUserLoginData
 
 
 def user_error_handlers(app: FastAPI):
@@ -11,7 +11,7 @@ def user_error_handlers(app: FastAPI):
     def user_already_registered(request: Request, exc: UserAlreadeRegistered):
         """Обработка ошибки когда пользователь уже зарегистрирован"""
         return ORJSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             content={
                 "message": "Re-registration of the user",
                 "detail": "A user with this email address is already registered. Select a different email",
@@ -23,7 +23,7 @@ def user_error_handlers(app: FastAPI):
     def incorrect_user_login_data(request: Request, exc: IncorrectUserLoginData):
         """Обработка ошибки когда пользователь ввел неверные данные при входе"""
         return ORJSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
             content={
                 "message": exc.message,
                 "detail": "Сheck the accuracy of the entered data",

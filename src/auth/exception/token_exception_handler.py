@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
-from auth.exception.exception import TokenValidException
+from src.auth.exception.exception import TokenValidException
 
 
 def token_error_handler(app: FastAPI):

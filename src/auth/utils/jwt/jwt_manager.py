@@ -8,34 +8,27 @@ from fastapi.exceptions import HTTPException
 from auth.schemas import JWTPayloadSchema
 from loguru import logger
 
-from auth.schemas import UserResponceSchema
-from core import settings
-from auth.exception import TokenValidException
-from auth.schemas import UserRole
+from src.auth.schemas import UserResponceSchema
+from src.core import settings
+from src.auth.exception import TokenValidException
+from src.auth.schemas import UserRole
 
 
 class JwtToken:
-    def __init__(
-        self,
-        private_key: str,
-        public_key: str,
-        algorithm: str,
-        access_token_lifetime_minutes: int,
-        refresh_token_lifetime_minutes: int,
-    ):
-        self._private_key: str = private_key
-        self._public_key: str = public_key
-        self._access_token_lifetime: int = access_token_lifetime_minutes
-        self._refresh_token_lifetime: int = refresh_token_lifetime_minutes
-        self._algorithm: str = algorithm
+    _private_key: str = settings.auth.private_key.read_text()
+    _public_key: str = settings.auth.public_key.read_text()
+    _algorithm: str = settings.auth.algorithm
+    _access_token_lifetime_minutes: int = settings.auth.access_token_lifetime_minutes
+    _refresh_token_lifetime_minutes: int = settings.auth.refresh_token_lifetime_minutes
 
-    def create_access_jwt_token(self, user_id: UUID, email: str, role: UserRole) -> str:
+    @classmethod
+    def create_access_jwt_token(cls, user_id: UUID, email: str, role: UserRole) -> str:
         """
         Создание access-token
         применение: /login, /refresh
         """
         expire = datetime.now(timezone.utc) + timedelta(
-            minutes=self._access_token_lifetime
+            minutes=cls._access_token_lifetime_minutes
         )
         payload = {
             "iss": settings.app.host,
@@ -49,10 +42,11 @@ class JwtToken:
         logger.debug(f"Создание access_token с данными {payload}")
 
         return jwt.encode(
-            payload=payload, key=self._private_key, algorithm=self._algorithm
+            payload=payload, key=cls._private_key, algorithm=cls._algorithm
         )
 
-    def create_refresh_jwt_token(self, user_id: UUID) -> str:
+    @staticmethod
+    def create_refresh_jwt_token() -> str:
         """
         Создание refresh-token
         применение: /login, /refresh
@@ -63,23 +57,25 @@ class JwtToken:
 
         return refresh_token
 
-    def issuing_tokens(self, user_data: UserResponceSchema) -> tuple[str, str]:
+    @classmethod
+    def issuing_tokens(cls, user_data: UserResponceSchema) -> tuple[str, str]:
         """
         Создание refresh и access tokens
         применение: /login, /refresh
         """
         # создаем refresh token
-        creation_ref_token: str = self.create_refresh_jwt_token(user_data.id)
+        creation_ref_token: str = cls.create_refresh_jwt_token()
         # создаем access token
-        creation_access_token: str = self.create_access_jwt_token(
+        creation_access_token: str = cls.create_access_jwt_token(
             user_id=user_data.id, email=user_data.email, role=user_data.role
         )
         logger.debug("Access и refresh токены созданы")
         return creation_access_token, creation_ref_token
 
-    def decode_jwt_token(self, token: str) -> JWTPayloadSchema:
+    @classmethod
+    def decode_jwt_token(cls, token: str) -> JWTPayloadSchema:
         try:
-            decoded_payload = jwt.decode(token, self._public_key, self._algorithm)
+            decoded_payload = jwt.decode(token, cls._public_key, cls._algorithm)
 
             return JWTPayloadSchema(**decoded_payload)
 

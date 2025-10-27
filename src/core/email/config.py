@@ -5,7 +5,7 @@ from typing import Generator
 
 from loguru import logger
 
-from core.config import settings
+from src.core.config import settings
 
 
 class EmailConfig:

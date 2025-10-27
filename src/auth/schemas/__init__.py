@@ -1,6 +1,6 @@
 # ruff: noqa: F401
 
-from .user import (
+from src.auth.schemas.user import (
     UserRole,
     UserSchema,
     UserResponceSchema,
@@ -9,4 +9,8 @@ from .user import (
     UserDBSchema,
     UserEmailSchema,
 )
-from .jwt_token import JWTPayloadSchema, JWTsPairSchema, RefreshTokenSchema
+from src.auth.schemas.jwt_token import (
+    JWTPayloadSchema,
+    JWTsPairSchema,
+    RefreshTokenSchema,
+)

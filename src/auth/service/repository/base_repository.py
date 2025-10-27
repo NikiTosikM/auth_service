@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, Result, delete
 from pydantic import BaseModel
 
-from core.db import Base
+from src.core.db import Base
 from loguru import logger
 
 

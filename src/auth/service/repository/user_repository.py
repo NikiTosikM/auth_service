@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, Result
 
-from auth.models.user import User
-from auth.schemas import UserSchema
-from auth.service.repository.base_repository import BaseRepository
+from src.auth.models.user import User
+from src.auth.schemas import UserSchema
+from src.auth.service.repository.base_repository import BaseRepository
 from loguru import logger
 
 

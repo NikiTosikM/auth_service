@@ -1,16 +1,20 @@
 from contextlib import asynccontextmanager
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
 import uvicorn
 
-from core import settings
-from auth.api import main_router
-from auth.exception import (
+sys.path.append(str(Path(__file__).parent))
+
+from src.core import settings
+from src.auth.api import main_router
+from src.auth.exception import (
     user_error_handlers,
     token_error_handler,
     server_error_handler,
 )
-from core.redis import redis_core
+from src.core.redis import redis_core
 
 
 @asynccontextmanager

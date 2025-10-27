@@ -1,8 +1,13 @@
-from auth.exception import UserAlreadeRegistered, IncorrectUserLoginData
-from auth.models.user import User
-from auth.schemas import UserResponceSchema, UserSchema, UserLoginSchema, UserDBSchema
-from auth.service.repository.user_repository import UserRepository
-from auth.utils.hash_password.hashing import hashing
+from src.auth.exception import UserAlreadeRegistered, IncorrectUserLoginData
+from src.auth.models.user import User
+from src.auth.schemas import (
+    UserResponceSchema,
+    UserSchema,
+    UserLoginSchema,
+    UserDBSchema,
+)
+from src.auth.service.repository.user_repository import UserRepository
+from src.auth.utils.hash_password.hashing import hashing
 from loguru import logger
 
 

@@ -7,7 +7,7 @@ from smtplib import SMTP
 
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 
-from core.config import settings
+from src.core.config import settings
 from loguru import logger
 
 

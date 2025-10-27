@@ -7,7 +7,7 @@ from alembic import context
 
 from core import settings
 from core.db import Base
-from auth.models.user import User  # noqa: F401
+from src.auth.models.user import User  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

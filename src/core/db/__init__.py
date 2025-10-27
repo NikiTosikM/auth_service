@@ -1,4 +1,4 @@
 # ruff: noqa: F401
-from .base_model import Base
+from src.core.db.base_model import Base
 
-from .config import db_core
+from src.core.db.config import db_core

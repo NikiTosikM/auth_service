@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from auth.schemas import UserRole
+from src.auth.schemas import UserRole
 
 
 class JWTPayloadSchema(BaseModel):

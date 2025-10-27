@@ -1,0 +1,34 @@
+datas_for_test_full_check_user = [
+    (
+        "mytestuser",
+        "mytestuserlastname",
+        "usertestemail@mail.ru",
+        "1234userpassword!",
+        "user",
+        200,
+    ),
+    (
+        "mytestuser2",
+        "mytestuserlastname",
+        "2usertestemail@mail.ru",
+        "1234userpassword!",
+        "user",
+        200,
+    ),
+    (
+        "mytestuse3",
+        "mytestuserlastname",
+        "usertestemail@mail.ru",
+        "1234userpassword!",
+        "user",
+        409,
+    ),
+    (
+        "mytestuse4",
+        "mytestuserlastname",
+        "3usertestemail@mail.ru",
+        "1234userpassword!",
+        "user",
+        200,
+    ),
+]

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import ORJSONResponse
 
-from auth.service.business.redis_manager import RedisManager
-from auth.utils.jwt.jwt_manager import JwtToken
-from auth.api.dependencies import get_redis_client_depen, get_jwt_token_depen
-from auth.schemas import JWTsPairSchema, RefreshTokenSchema, UserResponceSchema
+from src.auth.service.business.redis_manager import RedisManager
+from src.auth.utils.jwt.jwt_manager import JwtToken
+from src.auth.api.dependencies import get_redis_client_depen, get_jwt_token_depen
+from src.auth.schemas import JWTsPairSchema, RefreshTokenSchema, UserResponceSchema
 from logger.config import log_endpoint
 
 

@@ -1,8 +1,8 @@
 """Тут будут хранится все задачки для celery"""
 
-from core.celery.config import celery_app
-from auth.service.business.email_manager import EmailService
-from core.email.config import EmailConfig
+from src.core.celery.config import celery_app
+from src.auth.service.business.email_manager import EmailService
+from src.core.email.config import EmailConfig
 from loguru import logger
 
 

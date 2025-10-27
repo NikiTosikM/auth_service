@@ -1,1 +1,1 @@
-from .config import settings  # noqa: F401
+from src.core.config import settings  # noqa: F401

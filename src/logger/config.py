@@ -1,5 +1,6 @@
 from datetime import datetime
 import functools
+import asyncio
 
 from loguru import logger
 
@@ -7,7 +8,7 @@ logger.remove()
 
 # обработчик для debug уровня
 logger.add(
-    f"logger/info/debug_info_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.log",
+    f"logger_datas/debug_info_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.log",
     format="<green>{time}</green> | {level} | <yellow>{file}</yellow> | {message}",
     level="DEBUG",
     rotation="10 MB",
@@ -16,7 +17,7 @@ logger.add(
 
 # обработчик для error уровня
 logger.add(
-    "logger/info/errors.log",
+    f"logger_datas/errors_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.log",
     format="<green>{time}</green> | <red>{level}</red> | <yellow>{name}</yellow> | {message}",
     level="ERROR",
     rotation="10 MB",
@@ -31,7 +32,10 @@ def log_endpoint(func):
         start_time: datetime = datetime.now()
 
         try:
-            result = await func(*args, **kwargs)
+            result = func(*args, **kwargs)
+
+            if asyncio.iscoroutine(result):
+                result = await result
 
             end_time: datetime = datetime.now()
             logger.info(

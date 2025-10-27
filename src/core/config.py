@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -61,7 +62,7 @@ class Settings(BaseSettings):
         env_file=ROOT_DIR / ".env",
         env_nested_delimiter="__",
     )
-
+    mode: Literal["Prod", "Test", "Local", "Dev"]
     app: ConfigApp
     db: DBConfig
     auth: AuthSetting = AuthSetting()

@@ -2,8 +2,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import BYTEA
 
-from core.db import Base
-from auth.schemas import UserRole
+from src.core.db import Base
+from src.auth.schemas import UserRole
 
 
 class User(Base):
