@@ -1,4 +1,8 @@
-class UserAlreadeRegistered(Exception):
+class GeneralException(Exception):
+    """Главное исключение"""
+
+
+class UserAlreadeRegistered(GeneralException):
     """
     Ошибка вызываемая при повторной регистрации пользователя с таким же email
     """
@@ -7,7 +11,7 @@ class UserAlreadeRegistered(Exception):
         self.email = email
 
 
-class IncorrectUserLoginData(Exception):
+class IncorrectUserLoginData(GeneralException):
     """
     Вызывается при неправильном вводе данных для входа в аккаунт
     """
@@ -18,8 +22,23 @@ class IncorrectUserLoginData(Exception):
         self.login = login
 
 
-class TokenValidException(Exception):
-    """Ошибка вызываемая при валидации токена"""
+class TokenException(GeneralException):
+    """ Базовое исключение для токена """
+    detail = "Ошибка токена"
 
-    def __init__(self, error_message: str):
-        self.error_message = error_message
+class TokenNotValidException(TokenException):
+    """Ошибка вызываемая при валидации токена"""
+    detail = "Токен не валдиен"
+
+class TokenSignatureException(TokenException):
+    """ Ошибка сигнатуры токена """
+    detail = "Ошибка сигнатуры токена"
+    
+class TokenExpiredException(TokenException):
+    """ Ошибка времени жизни токена  """
+    detail = "Время жизни токена истекло"
+
+
+class UnauthenticatedUser(GeneralException):
+    """Пользователь не аутентифицирован"""
+    

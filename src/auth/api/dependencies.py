@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 
 from src.core.db import db_core
 from src.core.redis import redis_core
@@ -9,6 +9,7 @@ from src.auth.service import RedisManager
 from src.auth.utils.jwt.jwt_manager import JwtToken
 from src.auth.schemas import JWTPayloadSchema
 from loguru import logger
+from src.auth.exception.exception import UnauthenticatedUser
 
 
 security: HTTPAuthorizationCredentials = HTTPBearer()
@@ -40,10 +41,7 @@ def get_current_user(
     role: str = payload.role
 
     if role not in ["user", "admin"]:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"message": "Not enough rights", "detail": "You need to login"},
-        )
+        raise UnauthenticatedUser
 
     logger.debug("Проверка прав пользователя успешна")
 

@@ -3,14 +3,16 @@ from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
 import jwt
-from fastapi import status
-from fastapi.exceptions import HTTPException
 from auth.schemas import JWTPayloadSchema
 from loguru import logger
 
 from src.auth.schemas import UserResponceSchema
 from src.core import settings
-from src.auth.exception import TokenValidException
+from src.auth.exception import (
+    TokenNotValidException,
+    TokenSignatureException,
+    TokenExpiredException,
+)
 from src.auth.schemas import UserRole
 
 
@@ -80,26 +82,20 @@ class JwtToken:
             return JWTPayloadSchema(**decoded_payload)
 
         except jwt.InvalidSignatureError:
-            logger.error(f"Token {token} signature is not valid")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token signature is invalid",
-            )
+            logger.warning("Token signature is not valid")
+            raise TokenSignatureException
+
         except jwt.ExpiredSignatureError:
-            logger.error(f"Token {token} has expired")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
-            )
+            logger.info("Token has expired")
+            raise TokenExpiredException
+
         except jwt.InvalidTokenError:
-            logger.error(f"Token {token} is not valid")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is not valid"
-            )
-        # обработать еще pydantic ошибки
+            logger.warning("Token  is not valid")
+            raise TokenNotValidException
 
     def validate_refresh_token(
         self, user_data: UserResponceSchema | None, token: str
     ) -> None:
         if not user_data:
-            logger.error(f"Token {token} is not valid")
-            raise TokenValidException("Token is not valid")
+            logger.error("Token is not valid")
+            raise TokenNotValidException

@@ -1,7 +1,11 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
-from src.auth.exception.exception import UserAlreadeRegistered, IncorrectUserLoginData
+from src.auth.exception.exception import (
+    UserAlreadeRegistered,
+    IncorrectUserLoginData,
+    UnauthenticatedUser,
+)
 
 
 def user_error_handlers(app: FastAPI):
@@ -23,10 +27,22 @@ def user_error_handlers(app: FastAPI):
     def incorrect_user_login_data(request: Request, exc: IncorrectUserLoginData):
         """Обработка ошибки когда пользователь ввел неверные данные при входе"""
         return ORJSONResponse(
-            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             content={
                 "message": exc.message,
                 "detail": "Сheck the accuracy of the entered data",
                 "content": {"email": exc.login, "password": exc.password},
             },
         )
+        
+    @app.exception_handler(UnauthenticatedUser)
+    def unauthenticated_user(request: Request, exc: UnauthenticatedUser):
+        """Обработка ошибки когда пользователь не аутентифицирован """
+        return ORJSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={
+                "message": exc.message,
+                "detail": "You need to log in to your account"
+            },
+        )
+

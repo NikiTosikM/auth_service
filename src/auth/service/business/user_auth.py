@@ -68,7 +68,7 @@ class UserAuthService:
         Проверка пользователь на существование с таким email
         Необходимо при регистрации пользователя. Если он СУЩЕСТВУЕТ, то вызываем ошибку
         """
-        logger.debug("Проверка на существоание пользователя с email - {}")
+        logger.debug(f"Проверка на существоание пользователя с email - {user_email}")
         user: User | None = await self._get_user_by_email(user_email=user_email)
         if user:
             raise UserAlreadeRegistered(email=user_email)
