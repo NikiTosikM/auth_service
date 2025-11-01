@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI
 import uvicorn
 
-sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent.parent))
 
 from src.core import settings
 from src.auth.api import main_router
@@ -20,13 +20,15 @@ from src.core.redis import redis_core
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis_core.create_connection_pool()
+    await redis_core.test_request()
 
     yield
 
     await redis_core.close_pool()
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
+
 app.include_router(main_router)
 
 user_error_handlers(app)

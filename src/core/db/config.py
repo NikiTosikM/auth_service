@@ -16,6 +16,8 @@ class DBCore:
             self._async_engine
         )
 
+    
+
     @asynccontextmanager
     async def get_async_session(self) -> AsyncGenerator[AsyncSession, None]:
         session: AsyncSession = self._async_sessionmaker()

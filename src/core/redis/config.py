@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
 
-from redis.asyncio import ConnectionPool, Redis
+from redis.asyncio import ConnectionPool, Redis, ConnectionError, TimeoutError, RedisError
+from loguru import logger
 
-from core import settings
+from src.core.config import settings
+from src.auth.exception.exception import RedisConnectionException, RedisTimeoutException,  RedisException
+
 
 
 class RedisCore:
@@ -14,15 +17,37 @@ class RedisCore:
         self._pool = None
 
     def create_connection_pool(self):
-        if not self._pool:
-            self._pool = ConnectionPool(
-                host=self._host,
-                port=self._port,
-                db=self._db_num,
-                max_connections=self._max_connection,
-                decode_responses=True,
-            )
-        return self._pool
+        try:
+            if not self._pool:
+                self._pool = ConnectionPool(
+                    host=self._host,
+                    port=self._port,
+                    db=self._db_num,
+                    max_connections=self._max_connection,
+                    decode_responses=True,
+                )
+            return self._pool
+        except ConnectionError as error:
+            logger.error(f"Ошибка подключения к Redis - {error}")
+            raise RedisConnectionException from error
+        except TimeoutError as error:
+            logger.error(f"Вышло время подключения к Redis - {error}")
+            raise RedisTimeoutException from error
+        except RedisError as error:
+            logger.error(f"Ошибка Redis - {error}")
+            raise RedisException from error
+    
+    async def test_request(self):
+        """ Проверяет подключение к Redis при запуске приложения """
+        try:
+            client = Redis(connection_pool=self._pool)
+            await client.ping()
+            logger.info("Тестовое подключение к Redis успешно ")
+        except RedisError as error:
+            logger.error(f"Ошибка Redis - {error}")
+            raise RedisException from error
+            
+        
 
     @asynccontextmanager
     async def create_client(self):

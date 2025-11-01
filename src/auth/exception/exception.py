@@ -23,22 +23,40 @@ class IncorrectUserLoginData(GeneralException):
 
 
 class TokenException(GeneralException):
-    """ Базовое исключение для токена """
+    """Базовое исключение для токена"""
+
     detail = "Ошибка токена"
+
 
 class TokenNotValidException(TokenException):
     """Ошибка вызываемая при валидации токена"""
+
     detail = "Токен не валдиен"
 
+
 class TokenSignatureException(TokenException):
-    """ Ошибка сигнатуры токена """
+    """Ошибка сигнатуры токена"""
+
     detail = "Ошибка сигнатуры токена"
-    
+
+
 class TokenExpiredException(TokenException):
-    """ Ошибка времени жизни токена  """
+    """Ошибка времени жизни токена"""
+
     detail = "Время жизни токена истекло"
 
 
 class UnauthenticatedUser(GeneralException):
     """Пользователь не аутентифицирован"""
-    
+
+
+class RedisException(Exception):
+    """Общее исключение для Redis ошибок"""
+
+
+class RedisConnectionException(RedisException):
+    """Ошибка подключения к Redis"""
+
+
+class RedisTimeoutException(RedisException):
+    """Вышло время подключения к Redis"""

@@ -34,8 +34,8 @@ class DBConfig(BaseModel):
 
 
 class RedisConfig(BaseModel):
-    host: str = "localhost"
-    port: int = 6379
+    host: str
+    port: int
     max_connection_pool: int = 10
     db_number: int = 0
 

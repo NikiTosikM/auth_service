@@ -16,7 +16,7 @@ class MessageSender:
     smtp_connect: SMTP
 
     def send_message(self, message: MIMEMultipart):
-        self.smtp_connect.send_message(message)
+        self.smtp_connect.send_message(msg=message)
 
 
 @dataclass
@@ -38,7 +38,7 @@ class EmailService:
     """Работа с почтовым сервером"""
 
     env = Environment(
-        loader=FileSystemLoader("static/templates/"),
+        loader=FileSystemLoader("src/static/templates/"),
         autoescape=select_autoescape(["html"]),
     )
 

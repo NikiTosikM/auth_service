@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 
+from src.auth.exception.exception import RedisConnectionException, RedisTimeoutException, RedisException
+
 
 def server_error_handler(app: FastAPI):
-    """Обработка все серверных ошибок"""
+    """Обработка всех серверных ошибок"""
 
-    @app.exception_handler(Exception)
-    def redis_errors(request: Request, exc: Exception):
-        # добавить запись в logger
-
+    @app.exception_handler(RedisConnectionException)
+    @app.exception_handler(RedisTimeoutException)
+    async def redis_errors(request: Request, exc: RedisException):
         return ORJSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={

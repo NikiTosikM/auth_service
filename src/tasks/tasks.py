@@ -17,5 +17,5 @@ def send_email_message_to_user(user_data: dict):
 
         message = service.create_message(user_data)
 
-        service.send_message(message)
+        service.send_message(message, email_recipient=user_data["recipient_email"])
         service.save_message(message)
