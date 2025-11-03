@@ -12,6 +12,7 @@ wheels/
 .vscode
 
 .env
+.env.test
 
 src/keys/*
 
