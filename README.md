@@ -49,22 +49,22 @@
 ### 1. Создать .env файл и записать свои переменные окружения
 ### 2. Запустить Redis:
 ```
-docker run
---name auth-redis
---network auth-bridge-network
--p 3333:6379
--d redis:7.2
+docker run \
+--name auth-redis \
+--network auth-bridge-network \
+-p 3333:6379 \
+-d redis:7.2 
 ```
 ### 3. Запустить Postgres:
 ```
-docker run
---name auth-postgres
---network auth-bridge-network
--v auth-data:/app
--p 5555:5432
--e POSTGRES_USER=auth_user
--e POSTGRES_PASSWORD=password
--e POSTGRES_DB=db_name
+docker run \
+--name auth-postgres \
+--network auth-bridge-network \
+-v auth-data:/app \
+-p 5555:5432 \
+-e POSTGRES_USER=auth_user \
+-e POSTGRES_PASSWORD=password \
+-e POSTGRES_DB=db_name \
 -d postgres:17
 ```
 ### 4. Запустить приложение:

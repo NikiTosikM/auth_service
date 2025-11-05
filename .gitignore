@@ -19,3 +19,5 @@ src/keys/*
 src/alembic/versions
 
 logger_datas
+
+nginx.conf;C
