@@ -67,6 +67,17 @@ docker run \
 -e POSTGRES_DB=db_name \
 -d postgres:17
 ```
+### 4. Получаем SSL сертификат
+- **Останавливаем работу nginx, запущенным в docker**
+- **Скачиваем snapd и certbot**: 
+sudo app-get install snapd certbot
+- **Скачиваем nginx и запускаем его**: sudo apt-get install nginx | sudo systemctl start nginx 
+- **Получаем ssl сертификат от certbot**: sudo certbot certonly --nginx. Не забываем при получении указать свой домен !!! 
+- **Удаляем установленный nginx**: sudo apt-get purge nginx nginx-common
+### 5. Запустить nginx:
+```
+docker run --name auth-nginx --volume ./nginx.conf:/etc/nginx/nginx.conf --volume /etc/letsencrypt:/etc/letsencrypt --volume /var/lib/letsencrypt:/var/lib/letsencrypt --network auth-bridge-network -d  -p 443:443 nginx
+```
 ### 4. Запустить приложение:
 ```
 docker compose build
