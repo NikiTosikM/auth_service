@@ -63,6 +63,7 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     mode: Literal["Prod", "Test", "Local", "Dev"]
+    log_info: Literal["DEBUG", "INFO"]
     app: ConfigApp
     db: DBConfig
     auth: AuthSetting = AuthSetting()

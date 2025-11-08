@@ -1,8 +1,15 @@
+import re
 from enum import Enum
 from uuid import UUID
-import re
 
-from pydantic import BaseModel, Field, EmailStr, model_validator, ValidationError
+from pydantic import BaseModel, EmailStr, ValidationInfo, field_validator
+
+from src.auth.exception.exception import (
+    UserEmailShortException,
+    UserLastNameShortException,
+    UserNameShortException,
+    UserPasswordUncorrctedException,
+)
 
 
 class UserRole(str, Enum):
@@ -11,20 +18,43 @@ class UserRole(str, Enum):
 
 
 class UserSchema(BaseModel):
-    name: str = Field(max_length=100, min_length=5)
-    last_name: str = Field(max_length=150, min_length=5)
-    email: EmailStr = Field(max_length=150, min_length=3)
-    password: str = Field(min_length=12)
+    name: str
+    last_name: str
+    email: EmailStr
+    password: str
     role: UserRole
 
-    @model_validator(mode="after")
-    def validate_password(data: "UserSchema"):
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, name: str):
+        if len(name) < 5 or len(name) > 100:
+            raise UserNameShortException
+        
+        return name
+
+    @field_validator("last_name", "email")
+    @classmethod
+    def validate_last_name(cls, value: str, field: ValidationInfo):
+        field_name: str = field.field_name
+
+        if len(value) < 5 or len(value) > 150:
+            if field_name == "last_name":
+                raise UserLastNameShortException
+            else:
+                raise UserEmailShortException
+
+        return value
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, password: str):
         verif_expression = re.compile(
             r'^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$'
         )
-        if not verif_expression.match(data.password):
-            raise ValidationError("The password was not verified")
-        return data
+        if not verif_expression.match(password):
+            raise UserPasswordUncorrctedException
+        
+        return password
 
 
 class UserDBSchema(BaseModel):

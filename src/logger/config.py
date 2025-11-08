@@ -1,8 +1,9 @@
-from datetime import datetime
-import functools
 import asyncio
+import functools
+from datetime import datetime
 
 from loguru import logger
+from src.core import settings
 
 logger.remove()
 
@@ -10,7 +11,7 @@ logger.remove()
 logger.add(
     f"logger_datas/debug_info_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.log",
     format="<green>{time}</green> | {level} | <yellow>{file}</yellow> | {message}",
-    level="DEBUG",
+    level=settings.log_info,
     rotation="10 MB",
 )
 

@@ -60,3 +60,30 @@ class RedisConnectionException(RedisException):
 
 class RedisTimeoutException(RedisException):
     """Вышло время подключения к Redis"""
+    
+    
+class UserValidationException(Exception):
+    detail = "Ошибка валидации данных пользователя"
+    
+class UserPasswordUncorrctedException(UserValidationException):
+    detail = "Пароль должен быть от 8 символов, содержать латинские буквы и специальный символ"
+
+class UserNameShortException(UserValidationException):
+    detail = "Длинна имени пользователя должна быть минимум 5 символов"
+    
+class UserLastNameShortException(UserValidationException):
+    detail = "Длинна фамилии пользователя должна быть минимум 5 символов"
+    
+class UserEmailShortException(UserValidationException):
+    detail = "Длинна email должна быть минимум 3 символа"
+    
+    
+class DBException(Exception):
+    ''' Общее исключение для DB '''
+
+class LongRequestTimeExecution(DBException):
+    ''' Вышло время на обработку запроса '''
+    
+class OperationDBException(DBException):
+    ''' Проблема с подключением или разрыв соединения с бд '''
+    
