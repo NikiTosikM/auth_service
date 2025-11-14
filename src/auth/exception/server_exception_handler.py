@@ -22,14 +22,14 @@ def server_error_handler(app: FastAPI):
 
     @app.exception_handler(RedisConnectionException)
     @app.exception_handler(RedisTimeoutException)
-    async def redis_errors(request: Request, exc: RedisException):
+    def redis_errors(request: Request, exc: RedisException):
         raise server_http_exception
         
     @app.exception_handler(OperationDBException)
     @app.exception_handler(LongRequestTimeExecution)
-    async def db_errors(request: Request, exc: DBException):
+    def db_errors(request: Request, exc: DBException):
         raise server_http_exception
 
     @app.exception_handler(Exception)
-    async def server_exception(request: Request, exc: Exception):
+    def server_exception(request: Request, exc: Exception):
         raise server_http_exception
