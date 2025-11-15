@@ -1,0 +1,30 @@
+stages: 
+  - build
+  - linter_and_format
+  - deploy
+
+build-job:
+  stage: build
+  before_script: 
+   - cp ${ENV} .env
+   - mkdir -p keys 
+   - cp ${private_key} keys/private.pem
+   - cp ${public_key}  keys/public.pem
+  script:
+    - docker build -t auth:1.0 .
+    - docker compose -f docker-compose-ci.yml build 
+
+linter:
+  stage: linter_and_format
+  script: docker run --rm --network auth-bridge-network auth:1.0 uv run ruff check
+
+format:
+  stage: linter_and_format 
+  script: docker run --rm --network auth-bridge-network auth:1.0 uv run ruff format --check
+
+deploy-job: 
+  stage: deploy 
+  environment: production
+  script:
+    - docker compose -f docker-compose-ci.yml up -d
+    - docker exec auth-nginx nginx -s reload

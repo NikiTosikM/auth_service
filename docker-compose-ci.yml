@@ -1,0 +1,18 @@
+services:
+  app: 
+    image: auth:1.0
+    container_name: auth-app
+    networks:
+      - auth-bridge-network
+
+  celery-worker:
+    image: auth:1.0
+    container_name: celery-worker
+    networks:
+      - auth-bridge-network
+    command: uv run celery --app=src.core.celery.config:celery_app worker -l INFO 
+
+networks:
+  auth-bridge-network:
+    external: true
+
