@@ -1,7 +1,8 @@
 from uuid import UUID
+from typing import Annotated
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import Depends
+from fastapi import Depends, Request
 
 from src.core.db import db_core
 from src.core.redis import redis_core
@@ -46,3 +47,10 @@ def get_current_user(
     logger.debug("Проверка прав пользователя успешна")
 
     return user
+
+def get_refresh_token_from_cookie(request: Request):
+    refresh_token = request.cookies.get("refresh_token")
+
+    return refresh_token
+
+GetRefreshTokendDep = Annotated[str, Depends(get_refresh_token_from_cookie)]

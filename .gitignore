@@ -21,3 +21,4 @@ src/alembic/versions
 logger_datas
 
 nginx.conf;C
+.nginx.conf

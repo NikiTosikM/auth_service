@@ -1,6 +1,4 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Depends, Response
 from fastapi.responses import ORJSONResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,21 +8,20 @@ from src.auth.api.dependencies import (
     get_jwt_token_depen,
     get_redis_client_depen,
     get_session_depen,
+    GetRefreshTokendDep
 )
 from src.auth.schemas import (
     JWTsPairSchema,
+    UserEmailSchema,
     UserLoginSchema,
-    UserLogoutSchema,
     UserResponceSchema,
     UserSchema,
-    UserEmailSchema,
 )
 from src.auth.service import UserAuthService
 from src.auth.service.business.redis_manager import RedisManager
 from src.auth.utils.jwt.jwt_manager import JwtToken
-from src.tasks.tasks import send_email_message_to_user
 from src.logger.config import log_endpoint
-
+from src.tasks.tasks import send_email_message_to_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -64,6 +61,7 @@ async def register_user(
 @log_endpoint
 async def login(
     auth_data: UserLoginSchema,
+    responce: Response,
     jwt: JwtToken = Depends(get_jwt_token_depen),
     session: AsyncSession = Depends(get_session_depen),
     redis: RedisManager = Depends(get_redis_client_depen),
@@ -80,6 +78,11 @@ async def login(
     # сохранение refresh токена в redis
     await redis.adding_refresh_token(jti=refresh_token, user_data=user)
 
+    # устанавливаем refresh_token в httpOnly cookie
+    responce.set_cookie(
+        key="refresh_token", value=str(refresh_token), httponly=True, secure=True
+    )
+
     return {"access_token": access_token, "refresh_token": refresh_token}
 
 
@@ -91,16 +94,16 @@ async def login(
 )
 @log_endpoint
 async def logout(
-    logout_data: Annotated[UserLogoutSchema, Body()],
+    refresh_token: GetRefreshTokendDep,
     credentials: HTTPAuthorizationCredentials = Depends(get_current_user),
     jwt: JwtToken = Depends(get_jwt_token_depen),
     redis: RedisManager = Depends(get_redis_client_depen),
 ):
     availability_refresh_token: UserResponceSchema = await redis.validation_token(
-        jti=logout_data.refresh_token
+        jti=refresh_token
     )
     jwt.validate_refresh_token(user_data=availability_refresh_token.id, token=jwt)
-    await redis.expanding_list_invalid_tokens(jti=logout_data.refresh_token)
+    await redis.expanding_list_invalid_tokens(jti=refresh_token)
 
     return {"status": "success"}
 

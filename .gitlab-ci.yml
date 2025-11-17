@@ -1,6 +1,7 @@
 stages: 
   - build
   - linter_and_format
+  - test
   - deploy
 
 build-job:
@@ -21,6 +22,11 @@ linter:
 format:
   stage: linter_and_format 
   script: docker run --rm --network auth-bridge-network auth:1.0 uv run ruff format --check
+
+test:
+  stage: test
+  script: 
+    - docker run --rm network auth-bridge-network auth:1.0 uv run pytest
 
 deploy-job: 
   stage: deploy 

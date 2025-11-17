@@ -5,7 +5,6 @@ from src.auth.schemas.user import (
     UserSchema,
     UserResponceSchema,
     UserLoginSchema,
-    UserLogoutSchema,
     UserDBSchema,
     UserEmailSchema,
 )

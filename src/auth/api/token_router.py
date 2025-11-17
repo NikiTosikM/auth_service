@@ -3,8 +3,8 @@ from fastapi.responses import ORJSONResponse
 
 from src.auth.service.business.redis_manager import RedisManager
 from src.auth.utils.jwt.jwt_manager import JwtToken
-from src.auth.api.dependencies import get_redis_client_depen, get_jwt_token_depen
-from src.auth.schemas import JWTsPairSchema, RefreshTokenSchema, UserResponceSchema
+from src.auth.api.dependencies import get_redis_client_depen, get_jwt_token_depen, GetRefreshTokendDep
+from src.auth.schemas import JWTsPairSchema, UserResponceSchema
 from logger.config import log_endpoint
 
 
@@ -21,18 +21,18 @@ router = APIRouter(prefix="/token", tags=["Работа с токеном"])
 )
 @log_endpoint
 async def refresh_tokens(
-    refresh_token: RefreshTokenSchema,
+    refresh_token: GetRefreshTokendDep,
     redis: RedisManager = Depends(get_redis_client_depen),
     jwt: JwtToken = Depends(get_jwt_token_depen),
 ):
     # проверяем валидность refresh токена и получаем данные о пользователе, если он валиден
     user_data: UserResponceSchema | None = await redis.validation_token(
-        jti=refresh_token.refresh_token
+        jti=refresh_token
     )
-    jwt.validate_refresh_token(user_data=user_data, token=refresh_token.refresh_token)
+    jwt.validate_refresh_token(user_data=user_data, token=refresh_token)
 
     # удаляем старый refresh токен из redis
-    await redis.expanding_list_invalid_tokens(jti=refresh_token.refresh_token)
+    await redis.expanding_list_invalid_tokens(jti=refresh_token)
 
     # создаем новую пару refresh и access токенов
     access_token, refresh_token = jwt.issuing_tokens(user_data=user_data)

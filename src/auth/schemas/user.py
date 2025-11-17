@@ -75,11 +75,6 @@ class UserLoginSchema(BaseModel):
     login: EmailStr
     password: str
 
-
-class UserLogoutSchema(BaseModel):
-    refresh_token: str
-
-
 class UserEmailSchema(BaseModel):
     name: str
     last_name: str
