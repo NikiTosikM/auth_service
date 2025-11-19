@@ -99,10 +99,9 @@ async def logout(
     jwt: JwtToken = Depends(get_jwt_token_depen),
     redis: RedisManager = Depends(get_redis_client_depen),
 ):
-    availability_refresh_token: UserResponceSchema = await redis.validation_token(
+    await redis.validation_token(
         jti=refresh_token
     )
-    jwt.validate_refresh_token(user_data=availability_refresh_token.id, token=jwt)
     await redis.expanding_list_invalid_tokens(jti=refresh_token)
 
     return {"status": "success"}

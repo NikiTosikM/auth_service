@@ -16,7 +16,7 @@ async def test_full_check_user(
     role,
     status_code,
     create_client: AsyncClient,
-    get_redis_client_depen,
+    get_redis_client_fixture,
 ):
     # создаем
     register_responce: Response = await create_client.post(
@@ -48,10 +48,10 @@ async def test_full_check_user(
     assert login_responce.status_code == status_code
     assert all(token in ["access_token", "refresh_token"] for token in login_data)
 
-    create_client.cookies.update(login_data)
+    create_client.headers["access_token"] = login_data.get("access_token")
 
     # проверка прав доступа
-    access_token = create_client.cookies.get("access_token")
+    access_token = create_client.headers.get("access_token")
     protected_responce: Response = await create_client.get(
         url="/auth/protected",
         headers={
@@ -75,6 +75,6 @@ async def test_full_check_user(
 
     assert auth_responce.status_code == 200
 
-    info_token = await get_redis_client_depen.validation_token(jti=refresh_token)
+    info_token = await get_redis_client_fixture.validation_token(jti=refresh_token)
 
     assert not info_token

@@ -1,7 +1,6 @@
 from httpx import Response
 from sqlalchemy import select, Result
 
-from src.auth.service.business.redis_manager import RedisManager
 from src.auth.models.user import User
 
 
@@ -39,7 +38,7 @@ async def test_login(create_client):
 
 
 async def test_protected(authentication_user):
-    access_token = authentication_user.cookies.get("access_token")
+    access_token = authentication_user.headers.get("access_token")
 
     protected_responce: Response = await authentication_user.get(
         url="/auth/protected",
@@ -52,13 +51,11 @@ async def test_protected(authentication_user):
     assert protected_responce.json().get("status")
 
 
-async def test_logout(authentication_user, get_redis_client_depen: RedisManager):
-    access_token = authentication_user.cookies.get("access_token")
-    refresh_token = authentication_user.cookies.get("refresh_token")
+async def test_logout(authentication_user):
+    access_token = authentication_user.headers.get("access_token")
 
     auth_responce: Response = await authentication_user.post(
         url="/auth/logout",
-        json={"refresh_token": refresh_token},
         headers={
             "Authorization": f"Bearer {access_token}",
         },
@@ -66,6 +63,3 @@ async def test_logout(authentication_user, get_redis_client_depen: RedisManager)
 
     assert auth_responce.status_code == 200
 
-    info_token = await get_redis_client_depen.validation_token(jti=refresh_token)
-
-    assert not info_token

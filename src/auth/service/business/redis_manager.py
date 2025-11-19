@@ -3,6 +3,7 @@ import json
 from redis.asyncio import Redis
 from loguru import logger
 
+from auth.exception.exception import TokenNotValidException
 from src.core import settings
 from src.auth.schemas import UserResponceSchema
 
@@ -50,7 +51,7 @@ class RedisManager:
         await self._client.delete(f"refresh-token:{jti}")
         logger.debug(f"Токена {jti} удален")
 
-    async def validation_token(self, jti: str) -> UserResponceSchema | None:
+    async def validation_token(self, jti: str | None) -> UserResponceSchema | None:
         """
         Проверяем валидность токена. Если токен существует, то получаем данные о пользователе
         применение: /refresh
@@ -66,5 +67,6 @@ class RedisManager:
             user_data: UserResponceSchema = UserResponceSchema(**result)
         else:
             logger.debug(f"Токен {jti} не найден")
+            raise TokenNotValidException()
 
         return user_data if serialized_data else None

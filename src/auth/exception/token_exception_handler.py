@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request, status
-from fastapi.responses import ORJSONResponse
+from fastapi import FastAPI, Request, status, HTTPException
 
 from src.auth.exception.exception import (
     TokenException,
@@ -16,8 +15,8 @@ def token_error_handler(app: FastAPI):
     @app.exception_handler(TokenSignatureException)
     @app.exception_handler(TokenExpiredException)
     def token_exception(request: Request, exc: TokenException):
-        return ORJSONResponse(
+        return HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"message": exc.detail},
+            detail={"message": exc.detail},
         )
 

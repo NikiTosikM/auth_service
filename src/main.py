@@ -37,8 +37,8 @@ app.include_router(main_router)
 
 user_error_handlers(app)
 token_error_handler(app)
-server_error_handler(app)
 pydantic_error_handler(app)
+server_error_handler(app)
 
 if __name__ == "__main__":
     uvicorn.run(

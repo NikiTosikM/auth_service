@@ -9,6 +9,7 @@ from src.core.redis import redis_core
 from src.auth.service import RedisManager
 from src.auth.utils.jwt.jwt_manager import JwtToken
 from src.auth.schemas import JWTPayloadSchema
+from src.auth.exception import TokenNotValidException
 from loguru import logger
 from src.auth.exception.exception import UnauthenticatedUser
 
@@ -23,6 +24,7 @@ async def get_session_depen():
 
 async def get_redis_client_depen():
     async with redis_core.create_client() as client:
+        print("зависимость срабатывает")
         yield RedisManager(client=client)
 
 
@@ -50,6 +52,9 @@ def get_current_user(
 
 def get_refresh_token_from_cookie(request: Request):
     refresh_token = request.cookies.get("refresh_token")
+    
+    if not refresh_token:
+        raise TokenNotValidException()
 
     return refresh_token
 

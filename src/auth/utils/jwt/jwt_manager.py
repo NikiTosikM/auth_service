@@ -92,10 +92,3 @@ class JwtToken:
         except jwt.InvalidTokenError:
             logger.warning("Token  is not valid")
             raise TokenNotValidException
-
-    def validate_refresh_token(
-        self, user_data: UserResponceSchema | None, token: str
-    ) -> None:
-        if not user_data:
-            logger.error("Token is not valid")
-            raise TokenNotValidException

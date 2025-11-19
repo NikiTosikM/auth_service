@@ -22,7 +22,7 @@ class IncorrectUserLoginData(GeneralException):
         self.login = login
 
 
-class TokenException(GeneralException):
+class TokenException(Exception):
     """Базовое исключение для токена"""
 
     detail = "Ошибка токена"
